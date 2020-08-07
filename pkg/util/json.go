@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/majordomusio/goreq"
+	"github.com/txsvc/goreq"
 )
 
 // PrintJSON formats a struct into a JSON string
