@@ -49,7 +49,10 @@ func NewError(e error) error {
 // NewOperationError wraps an error with additional metadata
 func NewOperationError(operation string, e error) error {
 	p, f := packageAndFunc()
-	return &errorWrapper{err: e, msg: e.Error(), oper: operation, pkg: p, fn: f}
+	if e != nil {
+		return &errorWrapper{err: e, msg: e.Error(), oper: operation, pkg: p, fn: f}
+	}
+	return &errorWrapper{msg: fmt.Sprintf("Error in operation '%s", operation), oper: operation, pkg: p, fn: f}
 }
 
 // see https://stackoverflow.com/questions/25262754/how-to-get-name-of-current-package-in-go
