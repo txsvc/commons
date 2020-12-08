@@ -1,13 +1,29 @@
 package env
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
-// Getenv returns the environment variable env or def if env is not set.
-// Note: def is only returned if the env is not set, i.e. an EMPTY env is still returned !
-func Getenv(env, def string) string {
+// GetString returns the environment variable ENV['env'] or def if 'env' is not set.
+// Note: def is only returned if the 'env' is not set, i.e. an EMPTY 'env' is still returned !
+func GetString(env, def string) string {
 	e, ok := os.LookupEnv(env)
 	if ok {
 		return e
+	}
+	return def
+}
+
+// GetInt returns the environment variable ENV['env'] or def if 'env' is not set.
+func GetInt(env string, def int64) int64 {
+	e, ok := os.LookupEnv(env)
+	if ok {
+		v, err := strconv.ParseInt(e, 10, 64)
+		if err != nil {
+			return def
+		}
+		return v
 	}
 	return def
 }
