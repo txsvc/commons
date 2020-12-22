@@ -8,17 +8,26 @@ package errors
 import (
 	ee "errors"
 	"fmt"
+	"net/http"
 	"runtime"
 	"strings"
 )
 
 type (
 	errorWrapper struct {
-		err  error
-		msg  string
-		oper string
-		pkg  string
-		fn   string
+		err error
+		msg string
+		// should match semantics of HTTP status codes. See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+		status int
+		// location of the error
+		pkg string
+		fn  string
+	}
+
+	// ErrorObject is used to report errors in an API request
+	ErrorObject struct {
+		Status  int    `json:"status" binding:"required"`
+		Message string `json:"message" binding:"required"`
 	}
 )
 
@@ -31,28 +40,33 @@ func (e *errorWrapper) Unwrap() error {
 }
 
 func (e *errorWrapper) FullError() string {
-	return fmt.Sprintf("%s. Operation=%s, package='%s',f='%s'", e.msg, e.oper, e.pkg, e.fn)
+	return fmt.Sprintf("%s. Status=%d, package='%s',f='%s'", e.msg, e.status, e.pkg, e.fn)
+}
+
+// ToErrorObject returns a struct ready to use in a API response
+func (e *errorWrapper) ToErrorObject() *ErrorObject {
+	return &ErrorObject{
+		Status:  e.status,
+		Message: e.msg,
+	}
 }
 
 // New returns an error that formats as the given text
 func New(text string) error {
 	p, f := packageAndFunc()
-	return &errorWrapper{err: ee.New(text), msg: text, oper: "undefined", pkg: p, fn: f}
+	return &errorWrapper{err: ee.New(text), msg: text, status: http.StatusInternalServerError, pkg: p, fn: f}
 }
 
-// NewError wraps an error with additional metadata
-func NewError(e error) error {
+// Wrap adds some context to an error
+func Wrap(e error) error {
 	p, f := packageAndFunc()
-	return &errorWrapper{err: e, msg: e.Error(), oper: "undefined", pkg: p, fn: f}
+	return &errorWrapper{err: e, msg: e.Error(), status: http.StatusInternalServerError, pkg: p, fn: f}
 }
 
 // NewOperationError wraps an error with additional metadata
-func NewOperationError(operation string, e error) error {
+func NewOperationError(operation string, s int, e error) error {
 	p, f := packageAndFunc()
-	if e != nil {
-		return &errorWrapper{err: e, msg: e.Error(), oper: operation, pkg: p, fn: f}
-	}
-	return &errorWrapper{msg: fmt.Sprintf("Error in operation '%s", operation), oper: operation, pkg: p, fn: f}
+	return &errorWrapper{err: e, msg: fmt.Sprintf("Error in operation '%s", operation), status: s, pkg: p, fn: f}
 }
 
 // see https://stackoverflow.com/questions/25262754/how-to-get-name-of-current-package-in-go
