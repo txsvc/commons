@@ -52,21 +52,15 @@ func (e *errorWrapper) ToErrorObject() *ErrorObject {
 }
 
 // New returns an error that formats as the given text
-func New(text string) error {
+func New(text string, s int) error {
 	p, f := packageAndFunc()
-	return &errorWrapper{err: ee.New(text), msg: text, status: http.StatusInternalServerError, pkg: p, fn: f}
+	return &errorWrapper{err: ee.New(text), msg: text, status: s, pkg: p, fn: f}
 }
 
 // Wrap adds some context to an error
 func Wrap(e error) error {
 	p, f := packageAndFunc()
 	return &errorWrapper{err: e, msg: e.Error(), status: http.StatusInternalServerError, pkg: p, fn: f}
-}
-
-// NewOperationError wraps an error with additional metadata
-func NewOperationError(operation string, s int, e error) error {
-	p, f := packageAndFunc()
-	return &errorWrapper{err: e, msg: fmt.Sprintf("Error in operation '%s", operation), status: s, pkg: p, fn: f}
 }
 
 // see https://stackoverflow.com/questions/25262754/how-to-get-name-of-current-package-in-go
