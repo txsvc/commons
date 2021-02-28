@@ -6,8 +6,19 @@ import (
 	crand "crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"hash/crc32"
 	"io"
 )
+
+var (
+	// see https://golang.org/pkg/hash/crc32/
+	crc32q *crc32.Table = crc32.MakeTable(0xD5828281)
+)
+
+// Checksum creates a unique CRC32 checksum from a string
+func Checksum(a string) string {
+	return fmt.Sprintf("%08x\n", crc32.Checksum([]byte(a), crc32q))
+}
 
 // Fingerprint creates a unique ID (MD5) from a string
 func Fingerprint(a string) string {
