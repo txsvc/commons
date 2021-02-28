@@ -17,7 +17,7 @@ var (
 
 // Checksum creates a unique CRC32 checksum from a string
 func Checksum(a string) string {
-	return fmt.Sprintf("%08x\n", crc32.Checksum([]byte(a), crc32q))
+	return fmt.Sprintf("%08x", crc32.Checksum([]byte(a), crc32q))
 }
 
 // Fingerprint creates a unique ID (MD5) from a string
