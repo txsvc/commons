@@ -1,9 +1,4 @@
-# commons
-A collection of frequently used code in Go language
+# [deprecated] commons
 
-The module contains the following packages:
+This repo is deprecated, use https://github.com/fupas/commons instead.
 
-* package env
-* package errors
-* package services
-* package util
